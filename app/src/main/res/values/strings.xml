@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">POIAssignment</string>
+    <string name="addPOI">Add Point of Interest</string>
+    <string name="newPOI">New POI</string>
+    <string name="addMarker">New POI</string>
+    <string name="save">Save All Points of Interest</string>
+    <string name="load">Load All Points of Interest</string>
 </resources>
