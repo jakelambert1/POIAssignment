@@ -173,7 +173,7 @@ public class MainActivity extends Activity
                 savedDetails += p.getName() + "," + p.getType() + "," + p.getDescription() + "," + p.getLatitude() + "," + p.getLongitude() + "\n";
             }
             try {
-                Toast.makeText(MainActivity.this, "Marker Added!", Toast.LENGTH_LONG).show();
+
                 PrintWriter pw = new PrintWriter(new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath() + "/markers.csv", true));
                 pw.println(savedDetails);
                 pw.flush();
@@ -181,6 +181,7 @@ public class MainActivity extends Activity
             } catch (IOException e) {
                 new AlertDialog.Builder(this).setMessage("ERROR: " + e).setPositiveButton("OK", null).show();
             }
+            Toast.makeText(MainActivity.this, "Marker Added!", Toast.LENGTH_LONG).show();
         }
         else{
             Toast.makeText(MainActivity.this, "Upload to Web!", Toast.LENGTH_LONG).show();
