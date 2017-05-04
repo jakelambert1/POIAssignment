@@ -3,6 +3,7 @@ package com.example.a0lambj41.poiassignment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ public class MainActivity extends Activity
     ItemizedIconOverlay<OverlayItem> items;
     private List<POIs> listPOIs;
     Map<String,Drawable> markersType;
+    private boolean savetoweb;
 
     /** Called when the activity is first created. */
     @Override
@@ -114,57 +116,16 @@ public class MainActivity extends Activity
             return true;
         }
         else if(item.getItemId() == R.id.save) {
-
-            //Toast.makeText(MainActivity.this, Environment.getExternalStorageDirectory().getAbsolutePath(), Toast.LENGTH_SHORT).show();
-            String savedDetails = "";
-            for (POIs p : listPOIs) {
-                savedDetails += p.getName() + "," + p.getType() + "," + p.getDescription() + "," + p.getLatitude() + "," + p.getLongitude() + "\n";
-            }
-            try
-            {
-                Toast.makeText(MainActivity.this, "Marker Added!", Toast.LENGTH_LONG).show();
-                PrintWriter pw = new PrintWriter(new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath() + "/markers.csv"));
-                pw.println(savedDetails);
-                pw.flush();
-                pw.close();
-            }
-            catch(IOException e)
-            {
-                new AlertDialog.Builder(this).setMessage("ERROR: " + e).setPositiveButton("OK", null).show();
-            }
+            savePOIs();
             return true;
         }
         else if (item.getItemId() == R.id.load) {
-            try {
-                Toast.makeText(MainActivity.this, "Markers Loaded", Toast.LENGTH_LONG).show();
-                FileReader fr = new FileReader(Environment.getExternalStorageDirectory().getAbsolutePath() + "/markers.csv");
-                BufferedReader reader = new BufferedReader(fr);
-                String line = "";
-
-                while ((line = reader.readLine()) != null)
-                {
-                    String[] components = line.split(",");
-
-                    if (components.length > 4) {
-
-                        Toast.makeText(MainActivity.this, line, Toast.LENGTH_LONG).show();
-
-                        String name = components[0];
-                        String type = components[1];
-                        String description = components[2];
-                        double latitude = Double.parseDouble(components[3]);
-                        double longitude = Double.parseDouble(components[4]);
-
-                        OverlayItem loadingitem = new OverlayItem(name, type + description, new GeoPoint(latitude, longitude));
-                        items.addItem(loadingitem);
-                        mv.getOverlays().add(items);
-                    }
-                }
-                reader.close();
-            }
-            catch (IOException e) {
-                new AlertDialog.Builder(this).setMessage("ERROR: " + e).setPositiveButton("OK", null).show();
-            }
+            loadPOIs();
+            return true;
+        }
+        else if (item.getItemId() == R.id.preferences) {
+            Intent intent = new Intent(this, PrefsActivity.class);
+            startActivityForResult(intent, 1);
             return true;
         }
         return false;
@@ -195,5 +156,87 @@ public class MainActivity extends Activity
 
         }else if(requestCode == 1) {
         }
+    }
+
+    public void onStart() {
+        super.onStart();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        savetoweb = prefs.getBoolean("savetoweb", false);
+    }
+
+    private void savePOIs(){
+
+        if(savetoweb != true) {
+            //Toast.makeText(MainActivity.this, Environment.getExternalStorageDirectory().getAbsolutePath(), Toast.LENGTH_SHORT).show();
+            String savedDetails = "";
+            for (POIs p : listPOIs) {
+                savedDetails += p.getName() + "," + p.getType() + "," + p.getDescription() + "," + p.getLatitude() + "," + p.getLongitude() + "\n";
+            }
+            try {
+                Toast.makeText(MainActivity.this, "Marker Added!", Toast.LENGTH_LONG).show();
+                PrintWriter pw = new PrintWriter(new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath() + "/markers.csv", true));
+                pw.println(savedDetails);
+                pw.flush();
+                pw.close();
+            } catch (IOException e) {
+                new AlertDialog.Builder(this).setMessage("ERROR: " + e).setPositiveButton("OK", null).show();
+            }
+        }
+        else{
+            Toast.makeText(MainActivity.this, "Upload to Web!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private void loadPOIs() {
+        try {
+            Toast.makeText(MainActivity.this, "Markers Loaded", Toast.LENGTH_LONG).show();
+            FileReader fr = new FileReader(Environment.getExternalStorageDirectory().getAbsolutePath() + "/markers.csv");
+            BufferedReader reader = new BufferedReader(fr);
+            String line = "";
+
+            while ((line = reader.readLine()) != null)
+            {
+                String[] components = line.split(",");
+
+                if (components.length > 4) {
+
+                    //Toast.makeText(MainActivity.this, line, Toast.LENGTH_LONG).show();
+
+                    String name = components[0];
+                    String type = components[1];
+                    String description = components[2];
+                    double latitude = Double.parseDouble(components[3]);
+                    double longitude = Double.parseDouble(components[4]);
+
+                    OverlayItem loadingitem = new OverlayItem(name, type + description, new GeoPoint(latitude, longitude));
+                    items.addItem(loadingitem);
+                    mv.getOverlays().add(items);
+                }
+            }
+            reader.close();
+        }
+        catch (IOException e) {
+            new AlertDialog.Builder(this).setMessage("ERROR: " + e).setPositiveButton("OK", null).show();
+        }
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();  // Always call the superclass method first
+        savePOIs();
     }
 }

@@ -24,6 +24,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".AddPOIActivity" android:label="@string/newPOI"></activity>
+        <activity android:name=".PrefsActivity" android:label="@string/preference"></activity>
+
     </application>
 
 </manifest>
