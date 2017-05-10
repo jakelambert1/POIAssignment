@@ -176,7 +176,6 @@ public class MainActivity extends Activity {
     private void savePOIs() {
 
         if (savetoweb != true) {
-            //Toast.makeText(MainActivity.this, Environment.getExternalStorageDirectory().getAbsolutePath(), Toast.LENGTH_SHORT).show();
             String savedDetails = "";
             for (POIs p : listPOIs) {
                 savedDetails += p.getName() + "," + p.getType() + "," + p.getDescription() + "," + p.getLatitude() + "," + p.getLongitude() + "\n";
@@ -193,9 +192,30 @@ public class MainActivity extends Activity {
             Toast.makeText(MainActivity.this, "Marker Added!", Toast.LENGTH_LONG).show();
         } else {
 
+
             Toast.makeText(MainActivity.this, "Upload to Web!", Toast.LENGTH_LONG).show();
         }
     }
+
+    class savePOIsWeb extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground (String... params) {
+            String savedDetails = "";
+            for (POIs p : listPOIs) {
+                savedDetails += p.getName() + "," + p.getType() + "," + p.getDescription() + "," + p.getLatitude() + "," + p.getLongitude() + "\n";
+            }
+            try {
+                URL urlSave = new URL("http://www.free-map.org.uk/course/mad/ws/get.php?year=17&username=user032&format=json");
+            }
+            catch (IOException e) {
+                return "error";
+            }
+
+            return null;
+        }
+    }
+
 
     @Override
     protected void onStop() {
@@ -281,8 +301,6 @@ public class MainActivity extends Activity {
                         items.addItem(loadMarkers);
                     }
                     return jsonData;
-
-
                 }
             } catch (IOException e) {
                 e.toString();
