@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import org.osmdroid.util.GeoPoint;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -82,35 +83,34 @@ public class LoadPOIWeb extends AppCompatActivity implements View.onClickListene
                         double latitude = object.getString("lat");
                         double longitude = object.getString("long");
 
-                        String pretty = "Name of Place: " + name;
+                        /*String pretty = "Name of Place: " + name;
                         pretty += ", Type: " + type;
                         pretty += ", Description: " + description;
                         pretty += ", Latitude: " + latitude;
-                        pretty += ", Longitude: " + longitude + "\n";
-
+                        pretty += ", Longitude: " + longitude + "\n";**/
                         OverlayItem loadMarkers = new OverlayItem(name, type + description, GeoPoint(latitude, longitude));
+
                     }
-
-                        result += pretty;
-                    }
-
-                    return result;
-
-                } else{
-                        return connection.getResponseCode() + " Error! ";
-
+                    //result += pretty;
                 }
-            }
+                return result;
 
-            catch (IOException e) {
-                return "Error! " + e.getMessage();
-            } catch (JSONException e) {
-                return "Error! " + e.getMessage();
+            }
+            else {
+                return connection.getResponseCode() + " Error! ";
             }
         }
 
+        catch(IOException e){
+            return "Error! " + e.getMessage();
+        }
+
+        catch(JSONException e){
+            return "Error! " + e.getMessage();
+        }
+
         @Override
-        protected void onPostExecute(String s){
+        protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
             // display the string the result text view
@@ -118,4 +118,3 @@ public class LoadPOIWeb extends AppCompatActivity implements View.onClickListene
             resultTextView.setText(s);
         }
     }
-}

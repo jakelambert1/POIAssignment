@@ -230,15 +230,18 @@ public class MainActivity extends Activity
     }
 
 
-    public LoadWeb extends AsyncTask<void, Void, String> {
+    /*public LoadWeb extends AsyncTask<void, Void, String>
 
-    public String doInBackground(Void... unused) {
+    {
+
+        public String doInBackground (Void...unused){
         HttpURLConnection conn = null;
         try {
             JSONArray newarray = new JSONArray(result);
 
             for {
-                int n =0; n < newarray.length(); n++ {
+                int n = 0;
+                n<newarray.length (); n++ {
                     JSONObject object = newarray.getJSONObject(n);
 
                     String name = object.getString("name");
@@ -253,5 +256,6 @@ public class MainActivity extends Activity
 
         }
     }
-}
+    } **/
+
 }

@@ -6,6 +6,6 @@
     <string name="save">Save All Points of Interest</string>
     <string name="load">Load All Points of Interest</string>
     <string name="preference">Preferences</string>
-    <string name="poiweb">Load POI's from Web </string>
+    <string name="poiweb">Load POIs from Web </string>
 
 </resources>
