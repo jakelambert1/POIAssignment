@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -29,82 +30,85 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends Activity
-{
+public class MainActivity extends Activity {
 
     MapView mv;
     ItemizedIconOverlay<OverlayItem> items;
     private List<POIs> listPOIs;
-    Map<String,Drawable> markersType;
+    Map<String, Drawable> markersType;
     private boolean savetoweb;
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // This line sets the user agent, a requirement to download OSM maps
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
         setContentView(R.layout.activity_main);
 
-        mv = (MapView)findViewById(R.id.map1);
+        mv = (MapView) findViewById(R.id.map1);
 
         mv.setBuiltInZoomControls(true);
-        mv.getController().setZoom(14);
-        mv.getController().setCenter(new GeoPoint(50.9136,-1.4112));
+        mv.getController().setZoom(15);
+        mv.getController().setCenter(new GeoPoint(50.9136, -1.4112));
 
         items = new ItemizedIconOverlay<OverlayItem>(this, new ArrayList<OverlayItem>(), null);
         this.listPOIs = new ArrayList<>();
         //this.markersType = new HashMap<>();
     }
 
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        MenuInflater inflater=getMenuInflater();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         return true;
     }
 
 
 
+
+
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if(item.getItemId() == R.id.addpoi) {
+        if (item.getItemId() == R.id.addpoi) {
             // react to the menu item being selected...
             // Launch second activity
             Intent intent = new Intent(this, AddPOIActivity.class);
             startActivityForResult(intent, 0);
             return true;
-        }
-        else if(item.getItemId() == R.id.save) {
+        } else if (item.getItemId() == R.id.save) {
             savePOIs();
             return true;
-        }
-        else if (item.getItemId() == R.id.load) {
+        } else if (item.getItemId() == R.id.load) {
             loadPOIs();
             return true;
-        }
-        else if (item.getItemId() == R.id.preferences) {
+        } else if (item.getItemId() == R.id.preferences) {
             Intent intent = new Intent(this, PrefsActivity.class);
             startActivityForResult(intent, 1);
             return true;
-        }
-        else if (item.getItemId() == R.id.loadPOIweb) {
-            Intent intent = new Intent(this, LoadPOIWeb.class);
-            startActivityForResult(intent, 2);
+        } else if (item.getItemId() == R.id.loadPOIweb) {
+            LoadPOIWeb load = new LoadPOIWeb();
+            load.execute();
             return true;
         }
         return false;
     }
 
-    private class POIs {
+
+
+
+    public class POIs {
         private String name, type, description;
         private double latitude, longitude;
 
@@ -119,24 +123,27 @@ public class MainActivity extends Activity
         public String getName() {
             return this.name;
         }
+
         public String getType() {
             return this.type;
         }
+
         public String getDescription() {
             return this.description;
         }
+
         public Double getLatitude() {
             return this.latitude;
         }
+
         public Double getLongitude() {
             return this.longitude;
         }
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent)
-    {
-        if(requestCode == 0) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == 0) {
             Bundle bundle = intent.getExtras();
 
             String poiname = bundle.getString("com.example.pointofinterestapp.name");
@@ -156,7 +163,7 @@ public class MainActivity extends Activity
 
             Toast.makeText(MainActivity.this, "Marker Created!", Toast.LENGTH_SHORT).show();
 
-        }else if(requestCode == 1) {
+        } else if (requestCode == 1) {
         }
     }
 
@@ -166,9 +173,9 @@ public class MainActivity extends Activity
         savetoweb = prefs.getBoolean("savetoweb", false);
     }
 
-    private void savePOIs(){
+    private void savePOIs() {
 
-        if(savetoweb != true) {
+        if (savetoweb != true) {
             //Toast.makeText(MainActivity.this, Environment.getExternalStorageDirectory().getAbsolutePath(), Toast.LENGTH_SHORT).show();
             String savedDetails = "";
             for (POIs p : listPOIs) {
@@ -184,8 +191,8 @@ public class MainActivity extends Activity
                 new AlertDialog.Builder(this).setMessage("ERROR: " + e).setPositiveButton("OK", null).show();
             }
             Toast.makeText(MainActivity.this, "Marker Added!", Toast.LENGTH_LONG).show();
-        }
-        else{
+        } else {
+
             Toast.makeText(MainActivity.this, "Upload to Web!", Toast.LENGTH_LONG).show();
         }
     }
@@ -203,8 +210,7 @@ public class MainActivity extends Activity
             BufferedReader reader = new BufferedReader(fr);
             String line = "";
 
-            while ((line = reader.readLine()) != null)
-            {
+            while ((line = reader.readLine()) != null) {
                 String[] components = line.split(",");
 
                 if (components.length > 4) {
@@ -223,39 +229,95 @@ public class MainActivity extends Activity
                 }
             }
             reader.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             new AlertDialog.Builder(this).setMessage("ERROR: " + e).setPositiveButton("OK", null).show();
         }
     }
 
 
-    /*public LoadWeb extends AsyncTask<void, Void, String>
 
-    {
 
-        public String doInBackground (Void...unused){
-        HttpURLConnection conn = null;
-        try {
-            JSONArray newarray = new JSONArray(result);
 
-            for {
-                int n = 0;
-                n<newarray.length (); n++ {
-                    JSONObject object = newarray.getJSONObject(n);
+    class LoadPOIWeb extends AsyncTask<Void, Void, String> {
 
-                    String name = object.getString("name");
-                    String type = object.getString("type");
-                    String description = object.getString("Description");
-                    double latitude = object.getString("lat");
-                    double longitude = object.getString("long");
+        public String doInBackground(Void... unused) {
+            HttpURLConnection conn = null;
+            try {
+                // Open the connection to tyhe URL
+                String url = "http://www.free-map.org.uk/course/mad/ws/get.php?year=17&username=user032&format=json";
+                URL urlObj = new URL(url);
+                HttpURLConnection connection = (HttpURLConnection) urlObj.openConnection();
 
-                    OverlayItem loadMarkers = new OverlayItem(name, type + description, GeoPoint(latitude, longitude));
+                if (connection.getResponseCode() == 200) {
+                    // get back json data
+                    InputStream in = connection.getInputStream();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+                    String jsonData = "", line;
+
+                    while ((line = br.readLine()) != null) {
+                        jsonData += line;
+                        line = br.readLine();
+                    }
+
+                    JSONArray jsonArray = new JSONArray(jsonData);
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+
+                        JSONObject object = jsonArray.getJSONObject(i);
+
+                        String name = object.getString("name");
+                        String type = object.getString("type");
+                        String description = object.getString("description");
+                        double latitude = object.getDouble("lat");
+                        double longitude = object.getDouble("long");
+
+                        OverlayItem loadMarkers = new OverlayItem(name, type + description, new GeoPoint(latitude, longitude));
+
+                        POIs addMarkers = new MainActivity.POIs(name, type, description, latitude, longitude);
+
+                        Toast.makeText(MainActivity.this, "Markers Loaded from Web!", Toast.LENGTH_LONG).show();
+
+                        items.addItem(loadMarkers);
+                    }
+                    return jsonData;
+
+
                 }
+            } catch (IOException e) {
+                e.toString();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-
+            return "successful";
         }
     }
-    } **/
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
