@@ -6,4 +6,5 @@
     <item android:id="@+id/save" android:title="@string/save"/>
     <item android:id="@+id/load" android:title="@string/load"/>
     <item android:id="@+id/preferences" android:title="@string/preference"/>
+    <item android:id="@+id/loadPOIweb" android:title="@string/poiweb"/>
 </menu>

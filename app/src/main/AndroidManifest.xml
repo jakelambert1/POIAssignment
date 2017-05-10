@@ -25,6 +25,7 @@
         </activity>
         <activity android:name=".AddPOIActivity" android:label="@string/newPOI"></activity>
         <activity android:name=".PrefsActivity" android:label="@string/preference"></activity>
+        <activity android:name=".LoadPOIWeb" android:label="@string/poiweb"></activity>
 
     </application>
 

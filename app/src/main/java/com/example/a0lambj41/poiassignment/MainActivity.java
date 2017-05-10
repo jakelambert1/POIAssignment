@@ -15,6 +15,8 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
@@ -28,6 +30,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,47 +58,12 @@ public class MainActivity extends Activity
 
         mv.setBuiltInZoomControls(true);
         mv.getController().setZoom(14);
-        mv.getController().setCenter(new GeoPoint(50.9,-1.4));
+        mv.getController().setCenter(new GeoPoint(50.9136,-1.4112));
 
         items = new ItemizedIconOverlay<OverlayItem>(this, new ArrayList<OverlayItem>(), null);
         this.listPOIs = new ArrayList<>();
-        this.markersType = new HashMap<>();
+        //this.markersType = new HashMap<>();
     }
-
-    private class POIs {
-        private String name, type, description;
-        private double latitude, longitude;
-
-        public POIs(String nameArray, String typeArray, String descriptionArray, double latArray, double longArray) {
-            this.name = nameArray;
-            this.type = typeArray;
-            this.description = descriptionArray;
-            this.latitude = latArray;
-            this.longitude = longArray;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        public String getType() {
-            return this.type;
-        }
-
-        public String getDescription() {
-            return this.description;
-        }
-
-        public Double getLatitude() {
-            return this.latitude;
-        }
-
-        public Double getLongitude() {
-            return this.longitude;
-        }
-    }
-
-
 
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -128,7 +96,41 @@ public class MainActivity extends Activity
             startActivityForResult(intent, 1);
             return true;
         }
+        else if (item.getItemId() == R.id.loadPOIweb) {
+            Intent intent = new Intent(this, LoadPOIWeb.class);
+            startActivityForResult(intent, 2);
+            return true;
+        }
         return false;
+    }
+
+    private class POIs {
+        private String name, type, description;
+        private double latitude, longitude;
+
+        public POIs(String nameArray, String typeArray, String descriptionArray, double latArray, double longArray) {
+            this.name = nameArray;
+            this.type = typeArray;
+            this.description = descriptionArray;
+            this.latitude = latArray;
+            this.longitude = longArray;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+        public String getType() {
+            return this.type;
+        }
+        public String getDescription() {
+            return this.description;
+        }
+        public Double getLatitude() {
+            return this.latitude;
+        }
+        public Double getLongitude() {
+            return this.longitude;
+        }
     }
 
     @Override
@@ -188,18 +190,11 @@ public class MainActivity extends Activity
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
+    @Override
+    protected void onStop() {
+        super.onStop();  // Always call the superclass method first
+        savePOIs();
+    }
 
     private void loadPOIs() {
         try {
@@ -235,9 +230,28 @@ public class MainActivity extends Activity
     }
 
 
-    @Override
-    protected void onStop() {
-        super.onStop();  // Always call the superclass method first
-        savePOIs();
+    public LoadWeb extends AsyncTask<void, Void, String> {
+
+    public String doInBackground(Void... unused) {
+        HttpURLConnection conn = null;
+        try {
+            JSONArray newarray = new JSONArray(result);
+
+            for {
+                int n =0; n < newarray.length(); n++ {
+                    JSONObject object = newarray.getJSONObject(n);
+
+                    String name = object.getString("name");
+                    String type = object.getString("type");
+                    String description = object.getString("Description");
+                    double latitude = object.getString("lat");
+                    double longitude = object.getString("long");
+
+                    OverlayItem loadMarkers = new OverlayItem(name, type + description, GeoPoint(latitude, longitude));
+                }
+            }
+
+        }
     }
+}
 }
