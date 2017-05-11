@@ -223,6 +223,9 @@ public class MainActivity extends Activity {
         savePOIs();
     }
 
+
+
+
     private void loadPOIs() {
         try {
             Toast.makeText(MainActivity.this, "Markers Loaded", Toast.LENGTH_LONG).show();
@@ -264,53 +267,77 @@ public class MainActivity extends Activity {
             HttpURLConnection conn = null;
             try {
                 // Open the connection to tyhe URL
-                String url = "http://www.free-map.org.uk/course/mad/ws/get.php?year=17&username=user032&format=json";
-                URL urlObj = new URL(url);
-                HttpURLConnection connection = (HttpURLConnection) urlObj.openConnection();
+                URL urlObj = new URL("http://www.free-map.org.uk/course/mad/ws/get.php?year=17&username=user032&format=json");
+                conn = (HttpURLConnection) urlObj.openConnection();
+                InputStream in = conn.getInputStream();
 
-                if (connection.getResponseCode() == 200) {
+                if (conn.getResponseCode() == 200) {
                     // get back json data
-                    InputStream in = connection.getInputStream();
                     BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
                     String jsonData = "", line;
 
-                    while ((line = br.readLine()) != null) {
+                    while ((line = br.readLine()) != null)
                         jsonData += line;
-                        line = br.readLine();
-                    }
 
-                    JSONArray jsonArray = new JSONArray(jsonData);
-
-                    for (int i = 0; i < jsonArray.length(); i++) {
-
-                        JSONObject object = jsonArray.getJSONObject(i);
-
-                        String name = object.getString("name");
-                        String type = object.getString("type");
-                        String description = object.getString("description");
-                        double latitude = object.getDouble("lat");
-                        double longitude = object.getDouble("long");
-
-                        OverlayItem loadMarkers = new OverlayItem(name, type + description, new GeoPoint(latitude, longitude));
-
-                        POIs addMarkers = new MainActivity.POIs(name, type, description, latitude, longitude);
-
-                        Toast.makeText(MainActivity.this, "Markers Loaded from Web!", Toast.LENGTH_LONG).show();
-
-                        items.addItem(loadMarkers);
-                    }
                     return jsonData;
-                }
-            } catch (IOException e) {
+
+                } else
+                    return "HTTP ERROR: " + conn.getResponseCode();
+
+            } catch (Exception e) {
                 e.toString();
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
-            return "successful";
+            finally
+            {
+                if(conn!=null)
+                    conn.disconnect();
+            }
+            return "Error Something Went Wrong";
         }
+
+        public void onPostExecute(String jsonData) {
+            try {
+                JSONArray jsonArray = new JSONArray(jsonData);
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+
+                    JSONObject object = jsonArray.getJSONObject(i);
+
+                    String name = object.getString("name");
+                    String type = object.getString("type");
+                    String description = object.getString("description");
+                    double latitude = object.getDouble("lat");
+                    double longitude = object.getDouble("lon");
+
+                    OverlayItem loadMarkers = new OverlayItem(name, type + description, new GeoPoint(latitude, longitude));
+
+                    POIs addMarkers = new MainActivity.POIs(name, type, description, latitude, longitude);
+
+                    items.addItem(loadMarkers);
+
+                    mv.getOverlays().add(items);
+
+
+                }
+                mv.refreshDrawableState();
+
+                Toast.makeText(MainActivity.this, "Markers Loaded from Web!", Toast.LENGTH_LONG).show();
+            }
+            catch (JSONException e)
+            {
+                new AlertDialog.Builder(MainActivity.this).setMessage(e.toString()).setPositiveButton("OK", null).show();
+            }
+        }
+
     }
+
 }
+
+
+
+
+
+
 
 
 
