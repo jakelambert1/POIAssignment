@@ -187,42 +187,36 @@ public class MainActivity extends Activity {
     {
         @Override
         public String doInBackground(Void... params)
-        {
+                    {
 
-            System.out.println("hello");
-            HttpURLConnection conn = null;
-            try
-            {
-                //POIs poi = params[0];
-                URL url = new URL("http://www.free-map.org.uk/course/mad/ws/get.php?year=17&username=user032&format=json");
-                conn = (HttpURLConnection) url.openConnection();
+                        System.out.println("hello");
+                        HttpURLConnection conn = null;
+                        try
+                        {
+                            URL url = new URL("http://www.free-map.org.uk/course/mad/ws/add.php");
+                            conn = (HttpURLConnection) url.openConnection();
 
-                //String postDetails = "";
+                            String postDetails = "";
+                            for (POIs p : listPOIs) {
+                                postDetails = "year=17&username=user032" + "&name=" + p.getName() + "&type=" + p.getType() + "&description" + p.getDescription() + "&lat=" + p.getLatitude() + "&lon=" + p.getLongitude() + "\n";
+                            }
 
-                //postDetails = "year=17&username=user032" + "&name=" + poi.getName() + "&type=" + poi.getType() + "&description" + poi.getDescription() + "&lat=" + poi.getLatitude() + "&lon=" + poi.getLongitude() + "\n";
+                            // For POST
+                            conn.setDoOutput(true);
+                            conn.setFixedLengthStreamingMode(postDetails.length());
 
+                            OutputStream out = null;
+                            out = conn.getOutputStream();
 
-                String postDetails = "";
-                for (POIs p : listPOIs) {
-                    postDetails = "year=17&username=user032" + "&name=" + p.getName() + "&type=" + p.getType() + "&description" + p.getDescription() + "&lat=" + p.getLatitude() + "&lon=" + p.getLongitude() + "\n";
-                }
+                            System.out.println("postData: " + postDetails);
+                            out.write(postDetails.getBytes());
 
-                // For POST
-                conn.setDoOutput(true);
-                conn.setFixedLengthStreamingMode(postDetails.length());
-
-                OutputStream out = null;
-                out = conn.getOutputStream();
-
-                System.out.println("postData: " + postDetails);
-                out.write(postDetails.getBytes());
-
-                if (conn.getResponseCode() == 200) {
-                    InputStream in = conn.getInputStream();
-                    BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                    String all = "", line;
-                    while ((line = br.readLine()) != null)
-                        all += line;
+                            if (conn.getResponseCode() == 200) {
+                                InputStream in = conn.getInputStream();
+                                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                                String all = "", line;
+                                while ((line = br.readLine()) != null)
+                                    all += line;
                     return all;
 
                 } else {

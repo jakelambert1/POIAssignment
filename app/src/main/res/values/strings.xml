@@ -3,7 +3,7 @@
     <string name="addPOI">Add Point of Interest</string>
     <string name="newPOI">New POI</string>
     <string name="addMarker">New POI</string>
-    <string name="save">Save POIs to File</string>
+    <string name="save">Save POIs</string>
     <string name="load">Load POIs from File</string>
     <string name="preference">Preferences</string>
     <string name="poiweb">Load POIs from Web </string>
