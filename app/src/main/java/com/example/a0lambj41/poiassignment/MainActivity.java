@@ -216,7 +216,7 @@ public class MainActivity extends Activity {
                     postDetails += p.getName() + "," + p.getType() + "," + p.getDescription() + "," + p.getLatitude() + "," + p.getLongitude() + "\n";
                 }
 
-                String postData = "name=" + p.getName + "&type=" + p.getType + "&description=" + p.getDescription + "&lat=" + p.getLatitude + "&lon=" + p.getLongitude "
+                String postData = "name=" + p.getName + "&type=" + p.getType + "&description=" + p.getDescription + "&lat=" + p.getLatitude + "&lon=" + p.getLongitude "";
                 // For POST
                 conn.setDoOutput(true);
                 conn.setFixedLengthStreamingMode(postDetails.length());
