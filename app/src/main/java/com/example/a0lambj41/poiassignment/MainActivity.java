@@ -32,6 +32,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -61,7 +62,7 @@ public class MainActivity extends Activity {
         mv = (MapView) findViewById(R.id.map1);
 
         mv.setBuiltInZoomControls(true);
-        mv.getController().setZoom(15);
+        mv.getController().setZoom(13);
         mv.getController().setCenter(new GeoPoint(50.9136, -1.4112));
 
         items = new ItemizedIconOverlay<OverlayItem>(this, new ArrayList<OverlayItem>(), null);
@@ -192,29 +193,62 @@ public class MainActivity extends Activity {
             Toast.makeText(MainActivity.this, "Marker Added!", Toast.LENGTH_LONG).show();
         } else {
 
-
-            Toast.makeText(MainActivity.this, "Upload to Web!", Toast.LENGTH_LONG).show();
+            savePOIsWeb save = new savePOIsWeb();
+            save.execute();
         }
     }
 
-    class savePOIsWeb extends AsyncTask<String, Void, String> {
-
+    class savePOIsWeb extends AsyncTask<Void, Void, String>
+    {
         @Override
-        protected String doInBackground (String... params) {
-            String savedDetails = "";
-            for (POIs p : listPOIs) {
-                savedDetails += p.getName() + "," + p.getType() + "," + p.getDescription() + "," + p.getLatitude() + "," + p.getLongitude() + "\n";
-            }
-            try {
-                URL urlSave = new URL("http://www.free-map.org.uk/course/mad/ws/get.php?year=17&username=user032&format=json");
-            }
-            catch (IOException e) {
-                return "error";
-            }
+        public String doInBackground(Void... unused)
+        {
+            System.out.println("hello");
+            HttpURLConnection conn = null;
+            try
+            {
 
-            return null;
+                URL url = new URL("http://www.free-map.org.uk/course/mad/ws/get.php?year=17&username=user032&format=json");
+                conn = (HttpURLConnection) url.openConnection();
+
+                String postDetails = "";
+                for (POIs p : listPOIs) {
+                    postDetails += p.getName() + "," + p.getType() + "," + p.getDescription() + "," + p.getLatitude() + "," + p.getLongitude() + "\n";
+                }
+
+                String postData = "name=" + p.getName + "&type=" + p.getType + "&description=" + p.getDescription + "&lat=" + p.getLatitude + "&lon=" + p.getLongitude "
+                // For POST
+                conn.setDoOutput(true);
+                conn.setFixedLengthStreamingMode(postDetails.length());
+
+                OutputStream out = null;
+                out = conn.getOutputStream();
+
+                System.out.println("postData: " + postDetails);
+                out.write(postDetails.getBytes());
+
+                if (conn.getResponseCode() == 200) {
+                    InputStream in = conn.getInputStream();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                    String all = "", line;
+                    while ((line = br.readLine()) != null)
+                        all += line;
+                    return all;
+
+                } else {
+                    System.out.println("error");
+                    return "HTTP ERROR: " + conn.getResponseCode();
+                }
+
+            } catch (IOException e) {
+                return e.toString();
+            } finally {
+                if (conn != null)
+                    conn.disconnect();
+            }
         }
     }
+
 
 
     @Override
@@ -316,8 +350,6 @@ public class MainActivity extends Activity {
                     items.addItem(loadMarkers);
 
                     mv.getOverlays().add(items);
-
-
                 }
                 mv.refreshDrawableState();
 
