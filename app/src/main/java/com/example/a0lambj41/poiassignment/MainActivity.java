@@ -43,6 +43,7 @@ import java.util.Map;
 
 public class MainActivity extends Activity {
 
+
     MapView mv;
     ItemizedIconOverlay<OverlayItem> items;
     private List<POIs> listPOIs;
@@ -77,9 +78,6 @@ public class MainActivity extends Activity {
     }
 
 
-
-
-
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == R.id.addpoi) {
@@ -88,17 +86,17 @@ public class MainActivity extends Activity {
             Intent intent = new Intent(this, AddPOIActivity.class);
             startActivityForResult(intent, 0);
             return true;
-        } else if (item.getItemId() == R.id.save) {
+        } else if (item.getItemId() == R.id.savepoi) {
             savePOIs();
-            return true;
-        } else if (item.getItemId() == R.id.load) {
-            loadPOIs();
             return true;
         } else if (item.getItemId() == R.id.preferences) {
             Intent intent = new Intent(this, PrefsActivity.class);
             startActivityForResult(intent, 1);
             return true;
-        } else if (item.getItemId() == R.id.loadPOIweb) {
+        }else if (item.getItemId() == R.id.loadpoi) {
+            loadPOIs();
+            return true;
+        }  else if (item.getItemId() == R.id.loadPOIweb) {
             LoadPOIWeb load = new LoadPOIWeb();
             load.execute();
             return true;
@@ -114,29 +112,21 @@ public class MainActivity extends Activity {
         private double latitude, longitude;
 
         public POIs(String nameArray, String typeArray, String descriptionArray, double latArray, double longArray) {
-            this.name = nameArray;
-            this.type = typeArray;
-            this.description = descriptionArray;
-            this.latitude = latArray;
-            this.longitude = longArray;
+            this.name = nameArray; this.type = typeArray; this.description = descriptionArray; this.latitude = latArray; this.longitude = longArray;
         }
 
         public String getName() {
             return this.name;
         }
-
         public String getType() {
             return this.type;
         }
-
         public String getDescription() {
             return this.description;
         }
-
         public Double getLatitude() {
             return this.latitude;
         }
-
         public Double getLongitude() {
             return this.longitude;
         }
@@ -147,18 +137,16 @@ public class MainActivity extends Activity {
         if (requestCode == 0) {
             Bundle bundle = intent.getExtras();
 
-            String poiname = bundle.getString("com.example.pointofinterestapp.name");
-            String poitype = bundle.getString("com.example.pointofinterestapp.type");
-            String poidesc = bundle.getString("com.example.pointofinterestapp.desc");
-
+            String markerName = bundle.getString("com.example.pointofinterestapp.name");
+            String markerType = bundle.getString("com.example.pointofinterestapp.type");
+            String markerDesc = bundle.getString("com.example.pointofinterestapp.desc");
             double latitude = mv.getMapCenter().getLatitude();
             double longitude = mv.getMapCenter().getLongitude();
 
-            OverlayItem addpoi = new OverlayItem(poiname, poitype + poidesc, new GeoPoint(latitude, longitude));
-
-            this.listPOIs.add(new POIs(poiname, poitype, poidesc, latitude, longitude));
-
+            OverlayItem addpoi = new OverlayItem(markerName, markerType + markerDesc, new GeoPoint(latitude, longitude));
+            this.listPOIs.add(new POIs(markerName, markerType, markerDesc, latitude, longitude));
             items.addItem(addpoi);
+
             mv.getOverlays().add(items);
             mv.refreshDrawableState();
 
@@ -168,31 +156,28 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void onStart() {
-        super.onStart();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        savetoweb = prefs.getBoolean("savetoweb", false);
-    }
-
     private void savePOIs() {
 
-        if (savetoweb != true) {
+        if (savetoweb != true)
+        {
             String savedDetails = "";
-            for (POIs p : listPOIs) {
-                savedDetails += p.getName() + "," + p.getType() + "," + p.getDescription() + "," + p.getLatitude() + "," + p.getLongitude() + "\n";
+            for (POIs poi:listPOIs)
+            {
+                savedDetails += poi.getName() + "," + poi.getType() + "," + poi.getDescription() + "," + poi.getLatitude() + "," + poi.getLongitude() + "\n";
             }
-            try {
+            try
+            {
 
                 PrintWriter pw = new PrintWriter(new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath() + "/markers.csv", true));
                 pw.println(savedDetails);
                 pw.flush();
                 pw.close();
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
                 new AlertDialog.Builder(this).setMessage("ERROR: " + e).setPositiveButton("OK", null).show();
             }
             Toast.makeText(MainActivity.this, "Marker Added!", Toast.LENGTH_LONG).show();
         } else {
-
             savePOIsWeb save = new savePOIsWeb();
             save.execute();
         }
@@ -201,22 +186,27 @@ public class MainActivity extends Activity {
     class savePOIsWeb extends AsyncTask<Void, Void, String>
     {
         @Override
-        public String doInBackground(Void... unused)
+        public String doInBackground(Void... params)
         {
+
             System.out.println("hello");
             HttpURLConnection conn = null;
             try
             {
-
+                //POIs poi = params[0];
                 URL url = new URL("http://www.free-map.org.uk/course/mad/ws/get.php?year=17&username=user032&format=json");
                 conn = (HttpURLConnection) url.openConnection();
 
+                //String postDetails = "";
+
+                //postDetails = "year=17&username=user032" + "&name=" + poi.getName() + "&type=" + poi.getType() + "&description" + poi.getDescription() + "&lat=" + poi.getLatitude() + "&lon=" + poi.getLongitude() + "\n";
+
+
                 String postDetails = "";
                 for (POIs p : listPOIs) {
-                    postDetails += p.getName() + "," + p.getType() + "," + p.getDescription() + "," + p.getLatitude() + "," + p.getLongitude() + "\n";
+                    postDetails = "year=17&username=user032" + "&name=" + p.getName() + "&type=" + p.getType() + "&description" + p.getDescription() + "&lat=" + p.getLatitude() + "&lon=" + p.getLongitude() + "\n";
                 }
 
-                String postData = "name=" + p.getName + "&type=" + p.getType + "&description=" + p.getDescription + "&lat=" + p.getLatitude + "&lon=" + p.getLongitude "";
                 // For POST
                 conn.setDoOutput(true);
                 conn.setFixedLengthStreamingMode(postDetails.length());
@@ -257,7 +247,11 @@ public class MainActivity extends Activity {
         savePOIs();
     }
 
-
+    public void onStart() {
+        super.onStart();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        savetoweb = prefs.getBoolean("savetoweb", false);
+    }
 
 
     private void loadPOIs() {
@@ -345,7 +339,7 @@ public class MainActivity extends Activity {
 
                     OverlayItem loadMarkers = new OverlayItem(name, type + description, new GeoPoint(latitude, longitude));
 
-                    POIs addMarkers = new MainActivity.POIs(name, type, description, latitude, longitude);
+                    //POIs addMarkers = new MainActivity.POIs(name, type, description, latitude, longitude);
 
                     items.addItem(loadMarkers);
 
