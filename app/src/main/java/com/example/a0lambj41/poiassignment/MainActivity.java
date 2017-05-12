@@ -179,44 +179,41 @@ public class MainActivity extends Activity {
             Toast.makeText(MainActivity.this, "Marker Added!", Toast.LENGTH_LONG).show();
         } else {
             savePOIsWeb save = new savePOIsWeb();
-            save.execute();
+            save.execute(/*name, type, description, latitude, longitude*/);
         }
     }
 
-    class savePOIsWeb extends AsyncTask<Void, Void, String>
+    class savePOIsWeb extends AsyncTask<OverlayItem, Void, String>
     {
         @Override
-        public String doInBackground(Void... params)
-                    {
+        public String doInBackground(OverlayItem... params)
+        {
 
-                        System.out.println("hello");
-                        HttpURLConnection conn = null;
-                        try
-                        {
-                            URL url = new URL("http://www.free-map.org.uk/course/mad/ws/add.php");
-                            conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = null;
+            try
+            {
+                URL url = new URL("http://www.free-map.org.uk/course/mad/ws/add.php");
+                conn = (HttpURLConnection) url.openConnection();
 
-                            String postDetails = "";
-                            for (POIs p : listPOIs) {
-                                postDetails = "year=17&username=user032" + "&name=" + p.getName() + "&type=" + p.getType() + "&description" + p.getDescription() + "&lat=" + p.getLatitude() + "&lon=" + p.getLongitude() + "\n";
-                            }
+                String postDetails = "";
+                postDetails = "year=17&username=user032&name=" + params[0] +  "&type=" + params[1] + "&description=" + params[2] + "&lat=" + params[3] + "&long=" + params[4];
 
-                            // For POST
-                            conn.setDoOutput(true);
-                            conn.setFixedLengthStreamingMode(postDetails.length());
+                // For POST
+                conn.setDoOutput(true);
+                conn.setFixedLengthStreamingMode(postDetails.length());
 
-                            OutputStream out = null;
-                            out = conn.getOutputStream();
+                OutputStream out = null;
+                out = conn.getOutputStream();
 
-                            System.out.println("postData: " + postDetails);
-                            out.write(postDetails.getBytes());
+                System.out.println("postData: " + postDetails);
+                out.write(postDetails.getBytes());
 
-                            if (conn.getResponseCode() == 200) {
-                                InputStream in = conn.getInputStream();
-                                BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                                String all = "", line;
-                                while ((line = br.readLine()) != null)
-                                    all += line;
+                if (conn.getResponseCode() == 200) {
+                    InputStream in = conn.getInputStream();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                    String all = "", line;
+                    while ((line = br.readLine()) != null)
+                        all += line;
                     return all;
 
                 } else {
